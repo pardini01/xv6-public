@@ -51,6 +51,10 @@ struct proc {
   char name[16];               // Process name (debugging)
 	int tickCounter;       // Ticks of process (preemption)
 	int priority;          // Priority of process (can only be in {1, 2, 3})
+	uint ctime;            // Tempo quando o processo foi criado
+	int stime;             // Tempo SLEEPING
+	int retime;            // Tempo READY(RUNNABLE) time
+	int rutime;            // Tempo executando (RUNNING)
 };
 
 // Process memory is laid out contiguously, low addresses first:

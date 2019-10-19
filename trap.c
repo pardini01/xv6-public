@@ -52,6 +52,7 @@ trap(struct trapframe *tf)
     if(cpuid() == 0){
       acquire(&tickslock);
       ticks++;
+      updateProcessesTimes(); // As defined in proc.c - updates the SLEEPING, READY/RUNNABLE, RUNNING time for every process in the table, at every tick.
       wakeup(&ticks);
       release(&tickslock);
     }

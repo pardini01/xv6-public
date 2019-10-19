@@ -88,6 +88,10 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+	p->ctime = ticks;
+	p->stime = 0;
+	p->retime = 0;
+	p->rutime = 0;
 
   p->priority = 2; // default priority
 
@@ -132,6 +136,7 @@ userinit(void)
     panic("userinit: out of memory?");
   inituvm(p->pgdir, _binary_initcode_start, (int)_binary_initcode_size);
   p->sz = PGSIZE;
+  p->ctime = ticks;
   memset(p->tf, 0, sizeof(*p->tf));
   p->tf->cs = (SEG_UCODE << 3) | DPL_USER;
   p->tf->ds = (SEG_UDATA << 3) | DPL_USER;
@@ -223,6 +228,26 @@ fork(void)
   release(&ptable.lock);
 
   return pid;
+}
+
+// Updates process 'times' (SLEEPING, READY/RUNNABLE, RUNNING) for every process in table
+void updateProcessesTimes() {
+	struct proc* process;
+	for(process = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+		switch(process->state) {
+			case SLEEPING:
+				process->stime++;
+				break;
+			case RUNNABLE:
+				process->retime++;
+				break;
+			case RUNNING:
+				process->rutime++;
+				break;
+			default:
+				break;
+		}
+	}
 }
 
 // Exit the current process.  Does not return.
