@@ -532,3 +532,11 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+int increaseTickCount() {
+	int tickCount;
+	acquire(&ptable.lock);
+	tickCount = ++myproc()->tickCounter;
+	release(&ptable.lock);
+	return tickCount;
+}
