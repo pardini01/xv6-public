@@ -325,6 +325,7 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
+  int acceptablePriority;
   
   for(;;){
     // Enable interrupts on this processor.
@@ -332,9 +333,20 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
+
+    acceptablePriority = 3;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+      if(p->state != RUNNABLE && p->priority != acceptablePriority)
         continue;
+      
+      if(p + 1 >= &ptable.proc[NPROC]) {
+        if(acceptablePriority >= 1)
+          acceptablePriority--;
+        else
+          break;
+        p = ptable.proc - 1;
+        continue;
+      }
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
