@@ -533,6 +533,18 @@ procdump(void)
   }
 }
 
+
+int set_prio(int priority) {
+	//If priority does not belong to set {1, 2, 3}: error
+	if(priority < 1 || priority > 3)
+		return -1;
+
+	acquire(&ptable.lock);
+	myproc()->priority = priority;
+	release(&ptable.lock);
+	return 0;
+}
+
 int increaseTickCount() {
 	int tickCount;
 	acquire(&ptable.lock);
