@@ -216,6 +216,8 @@ fork(void)
 
   np->state = RUNNABLE;
 
+  np->priority = 2;
+
   release(&ptable.lock);
 
   return pid;
