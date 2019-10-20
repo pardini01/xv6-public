@@ -233,7 +233,7 @@ fork(void)
 // Updates process 'times' (SLEEPING, READY/RUNNABLE, RUNNING) for every process in table
 void updateProcessesTimes() {
 	struct proc* process;
-	for(process = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+	for(process = ptable.proc; process < &ptable.proc[NPROC]; process++) {
 		switch(process->state) {
 			case SLEEPING:
 				process->stime++;
@@ -338,6 +338,51 @@ wait(void)
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
+}
+
+int wait2(int* retime, int* rutime, int* stime) {
+	struct proc* currentProcess;
+	int hasChildren;
+	struct proc* process = myproc();
+	acquire(&ptable.lock);
+
+	for(;;) {
+		hasChildren = 0;
+		for(currentProcess = ptable.proc; currentProcess < &ptable.proc[NPROC]; currentProcess++) {
+			if(currentProcess->parent != process)
+				continue;
+			hasChildren = 1;	
+			if(currentProcess->state == ZOMBIE) {
+				*stime = currentProcess->stime;
+				*retime = currentProcess->retime;
+				*rutime = currentProcess->rutime;
+				kfree(currentProcess->kstack);
+				currentProcess->kstack = 0;
+				freevm(currentProcess->pgdir);
+				currentProcess->pid = 0;
+				currentProcess->parent = 0;
+				currentProcess->name[0] = 0;
+				currentProcess->killed = 0;
+				currentProcess->state = UNUSED;
+				currentProcess->ctime = 0;
+				currentProcess->stime = 0;
+				currentProcess->retime = 0;
+				currentProcess->rutime = 0;
+				currentProcess->priority = 0;
+				release(&ptable.lock);
+				return 0; // Success!
+			}
+		}
+
+		// No point waiting if we don't have any children.
+		if(!hasChildren || process->killed){
+	      		release(&ptable.lock);
+	      		return -1;
+	    	}
+
+	    	// Wait for children to exit.  (See wakeup1 call in proc_exit.)
+	    	sleep(process, &ptable.lock);  //DOC: wait-sleep
+	}
 }
 
 //PAGEBREAK: 42
@@ -576,7 +621,6 @@ procdump(void)
     cprintf("\n");
   }
 }
-
 
 int set_prio(int priority) {
 	//If priority does not belong to set {1, 2, 3}: error
