@@ -218,6 +218,8 @@ fork(void)
 
   np->state = RUNNABLE;
 
+  np->priority = 2;
+
   release(&ptable.lock);
 
   return pid;
@@ -327,9 +329,13 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
+<<<<<<< HEAD
 
   struct proc* procAux;
   struct proc* highestPriorityProcess;
+=======
+  int acceptablePriority;
+>>>>>>> ca2c665c92a0ed747b473308b6378a7f81c40490
   
   for(;;){
     // Enable interrupts on this processor.
@@ -338,12 +344,25 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
 
+<<<<<<< HEAD
     highestPriorityProcess = 0;
     procAux = 0;
 
+=======
+    acceptablePriority = 3;
+>>>>>>> ca2c665c92a0ed747b473308b6378a7f81c40490
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+      if(p->state != RUNNABLE && p->priority != acceptablePriority)
         continue;
+      
+      if(p + 1 >= &ptable.proc[NPROC]) {
+        if(acceptablePriority >= 1)
+          acceptablePriority--;
+        else
+          break;
+        p = ptable.proc - 1;
+        continue;
+      }
 
       highestPriorityProcess = p;
 
