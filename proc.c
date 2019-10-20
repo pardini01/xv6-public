@@ -89,6 +89,8 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
 
+  p->priority = 2;
+
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -325,6 +327,9 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
+
+  struct proc* procAux;
+  struct proc* highestPriorityProcess;
   
   for(;;){
     // Enable interrupts on this processor.
@@ -332,9 +337,21 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
+
+    highestPriorityProcess = 0;
+    procAux = 0;
+
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
+
+      highestPriorityProcess = p;
+
+      for(procAux = ptable.proc; procAux < &ptable.proc[NPROC]; procAux++)
+        if(procAux->state == RUNNABLE && procAux->priority > highestPriorityProcess->priority)
+          highestPriorityProcess = procAux;
+
+      p = highestPriorityProcess;
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
