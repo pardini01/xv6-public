@@ -422,8 +422,6 @@ scheduler(void)
       else if(p->priority == 2 && p->retime > _2TO3)
         p->priority = 3;
 
-      cprintf("%d\n", p->priority);
-
       highestPriorityProcess = p;
 
       for(procAux = ptable.proc; procAux < &ptable.proc[NPROC]; procAux++)
