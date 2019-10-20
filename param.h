@@ -12,3 +12,5 @@
 #define NBUF         (MAXOPBLOCKS*3)  // size of disk block cache
 #define FSSIZE       1000  // size of file system in blocks
 #define INTERV       5
+#define _1TO2        5
+#define _2TO3        5

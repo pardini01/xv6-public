@@ -417,6 +417,13 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
 
+      if(p->priority == 1 && p->retime > _1TO2)
+        p->priority = 2;
+      else if(p->priority == 2 && p->retime > _2TO3)
+        p->priority = 3;
+
+      cprintf("%d\n", p->priority);
+
       highestPriorityProcess = p;
 
       for(procAux = ptable.proc; procAux < &ptable.proc[NPROC]; procAux++)
