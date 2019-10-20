@@ -342,7 +342,7 @@ wait(void)
 
 int wait2(int* retime, int* rutime, int* stime) {
 	struct proc* currentProcess;
-	int hasChildren;
+	int hasChildren, pid;
 	struct proc* process = myproc();
 	acquire(&ptable.lock);
 
@@ -353,6 +353,7 @@ int wait2(int* retime, int* rutime, int* stime) {
 				continue;
 			hasChildren = 1;	
 			if(currentProcess->state == ZOMBIE) {
+                                pid = currentProcess->pid;
 				*stime = currentProcess->stime;
 				*retime = currentProcess->retime;
 				*rutime = currentProcess->rutime;
@@ -370,7 +371,7 @@ int wait2(int* retime, int* rutime, int* stime) {
 				currentProcess->rutime = 0;
 				currentProcess->priority = 0;
 				release(&ptable.lock);
-				return 0; // Success!
+				return pid; // Success!
 			}
 		}
 
