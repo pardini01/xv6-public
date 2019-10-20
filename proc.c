@@ -347,7 +347,6 @@ scheduler(void)
       if(p->state != RUNNABLE)
         continue;
 
-      cprintf("pid:%d, priority:%d\n", p->pid, p->priority);
       highestPriorityProcess = p;
 
       for(procAux = ptable.proc; procAux < &ptable.proc[NPROC]; procAux++)
