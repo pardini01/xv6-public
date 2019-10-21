@@ -5,6 +5,8 @@
 #define S_BOUND 1
 #define IO_BOUND 2
 
+extern void yield();
+
 void sanity(int n) {
   int counter0;
   int counter1;
@@ -37,6 +39,7 @@ void sanity(int n) {
           set_prio(2);
           for(counter1 = 0; counter1 < 100; counter1++) {
             for(counter2 = 0; counter2 < 1000000; counter2++) {}
+            yield();
           }
           break;
 
